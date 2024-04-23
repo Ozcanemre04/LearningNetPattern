@@ -32,7 +32,7 @@ namespace FormulaOne.Api.MappingProfiles
           .ForMember(dest => dest.UpdatedDate,opt => opt.MapFrom(src => DateTime.Now));
 
           //update driver map
-          CreateMap<UpdateAchievementRequest,Driver>()
+          CreateMap<UpdateDriverRequest,Driver>()
           .ForMember(dest => dest.UpdatedDate,opt => opt.MapFrom(src => DateTime.Now))
           .ForAllMembers(opts => opts.Condition((src,dest,srcMember)=> srcMember != null));
        }   

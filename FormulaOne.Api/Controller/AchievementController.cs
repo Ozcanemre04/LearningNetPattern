@@ -14,21 +14,16 @@ namespace FormulaOne.Api.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AchievementController : ControllerBase
+    public class AchievementController : BaseController
     {
-        private readonly IGenericRepository<Achievement> _achievementRepository;
-        private readonly IMapper _mapper;
-
-        public AchievementController(IGenericRepository<Achievement> achievementRepository, IMapper mapper)
+         public AchievementController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            _achievementRepository = achievementRepository;
-            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AchievementResponse>>> GetAll()
         {
-            var achievements = await _achievementRepository.GetAll();
+            var achievements = await _unitOfWork.Achievements.GetAll();
             var achievementDto = achievements.Select(achievement => _mapper.Map<AchievementResponse>(achievement));
 
             return Ok(achievementDto);
@@ -37,7 +32,7 @@ namespace FormulaOne.Api.Controller
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult<AchievementResponse>> GetOneById([FromRoute] Guid id)
         {
-            var achievement = await _achievementRepository.GetById(id);
+            var achievement = await _unitOfWork.Achievements.GetById(id);
             if (achievement == null)
             {
                 return NotFound("achievement not found");
@@ -50,12 +45,13 @@ namespace FormulaOne.Api.Controller
         [HttpDelete("{id:Guid}")]
         public async Task<IActionResult> DeleteOneDriver([FromRoute] Guid id)
         {
-            var achievement = await _achievementRepository.GetById(id);
+            var achievement = await _unitOfWork.Achievements.GetById(id);
             if (achievement == null)
             {
-                return NotFound("achievement not found");
+                return NotFound("achievement is not found");
             }
-            await _achievementRepository.Delete(achievement);
+            await _unitOfWork.Achievements.Delete(achievement);
+            await _unitOfWork.completeAsync();
             return Ok(true);
         }
 
@@ -63,20 +59,22 @@ namespace FormulaOne.Api.Controller
         public async Task<IActionResult> AddDriver([FromBody] AddAchievementRequest addAchievement)
         {
             var achievement = _mapper.Map<Achievement>(addAchievement);
-            await _achievementRepository.Add(achievement);
+            await _unitOfWork.Achievements.Add(achievement);
+            await _unitOfWork.completeAsync();
             return Ok(true);
         }
 
         [HttpPut("{id:Guid}")]
         public async Task<IActionResult> UpdateDriver([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
         {
-            var achievement = await _achievementRepository.GetById(id);
+            var achievement = await _unitOfWork.Achievements.GetById(id);
             if (achievement == null)
             {
-                return NotFound("achievement not found");
+                return NotFound("achievement is not found");
             }
             _mapper.Map(updateAchievement, achievement);
-            await _achievementRepository.Update(achievement);
+            await _unitOfWork.Achievements.Update(achievement);
+            await _unitOfWork.completeAsync();
 
             return Ok(true);
         }
