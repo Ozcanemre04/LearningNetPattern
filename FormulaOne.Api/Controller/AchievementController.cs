@@ -43,7 +43,7 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpDelete("{id:Guid}")]
-        public async Task<IActionResult> DeleteOneDriver([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteOneAchievement([FromRoute] Guid id)
         {
             var achievement = await _unitOfWork.Achievements.GetById(id);
             if (achievement == null)
@@ -56,9 +56,13 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDriver([FromBody] AddAchievementRequest addAchievement)
+        public async Task<IActionResult> AddAchievement([FromBody] AddAchievementRequest addAchievement)
         {
-            var driver = await _unitOfWork.Drivers.GetById(addAchievement.DriverId) ?? null;
+            var driver = await _unitOfWork.Drivers.GetById(addAchievement.DriverId);
+            if (driver == null)
+            {
+               return NotFound("driver isn't found");
+            }
             var achievement = _mapper.Map<Achievement>(addAchievement);
             achievement.DriverId = driver.Id;
             await _unitOfWork.Achievements.Add(achievement);
@@ -67,7 +71,7 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<IActionResult> UpdateDriver([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
+        public async Task<IActionResult> UpdateAchievement([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
         {
             var achievement = await _unitOfWork.Achievements.GetById(id);
             if (achievement == null)
