@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using AutoMapper;
 using FormulaOne.DataService;
@@ -17,11 +18,13 @@ namespace FormulaOne.Api.Controller
     public class AchievementController : ControllerBase
     {
         private readonly IGenericRepository<Achievement> _achievementRepository;
+        private readonly IGenericRepository<Driver> _driverRepository;
         private readonly IMapper _mapper;
 
-        public AchievementController(IGenericRepository<Achievement> achievementRepository, IMapper mapper)
+        public AchievementController(IGenericRepository<Achievement> achievementRepository, IMapper mapper,IGenericRepository<Driver> driverRepository)
         {
             _achievementRepository = achievementRepository;
+            _driverRepository = driverRepository;
             _mapper = mapper;
         }
 
@@ -48,7 +51,7 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpDelete("{id:Guid}")]
-        public async Task<IActionResult> DeleteOneDriver([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteOneAchievement([FromRoute] Guid id)
         {
             var achievement = await _achievementRepository.GetById(id);
             if (achievement == null)
@@ -60,15 +63,21 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDriver([FromBody] AddAchievementRequest addAchievement)
+        public async Task<IActionResult> AddAchievement([FromBody] AddAchievementRequest addAchievement)
         {
+            var driver = await _driverRepository.GetById(addAchievement.DriverId);
+            if (driver == null)
+            {
+                return NotFound("Driver isn't found");
+            }
             var achievement = _mapper.Map<Achievement>(addAchievement);
+            achievement.DriverId = driver.Id;
             await _achievementRepository.Add(achievement);
             return Ok(true);
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<IActionResult> UpdateDriver([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
+        public async Task<IActionResult> UpdateAchievement([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
         {
             var achievement = await _achievementRepository.GetById(id);
             if (achievement == null)
