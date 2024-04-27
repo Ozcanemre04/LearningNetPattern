@@ -41,7 +41,7 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpDelete("{id:Guid}")]
-        public async Task<IActionResult> DeleteOneDriver([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteOneAchievement([FromRoute] Guid id)
         {
            var query = new DeleteAchievementCommand(id);
            var result = await _mediator.Send(query);
@@ -49,7 +49,7 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDriver([FromBody] AddAchievementRequest addAchievement)
+        public async Task<IActionResult> AddAchievement([FromBody] AddAchievementRequest addAchievement)
         {
             if(!ModelState.IsValid)
                return BadRequest();
@@ -59,7 +59,7 @@ namespace FormulaOne.Api.Controller
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<IActionResult> UpdateDriver([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
+        public async Task<IActionResult> UpdateAchievement([FromRoute] Guid id, [FromBody] UpdateAchievementRequest updateAchievement)
         {
             if(!ModelState.IsValid)
                return BadRequest();
