@@ -58,7 +58,9 @@ namespace FormulaOne.Api.Controller
         [HttpPost]
         public async Task<IActionResult> AddDriver([FromBody] AddAchievementRequest addAchievement)
         {
+            var driver = await _unitOfWork.Drivers.GetById(addAchievement.DriverId) ?? null;
             var achievement = _mapper.Map<Achievement>(addAchievement);
+            achievement.DriverId = driver.Id;
             await _unitOfWork.Achievements.Add(achievement);
             await _unitOfWork.completeAsync();
             return Ok(true);
