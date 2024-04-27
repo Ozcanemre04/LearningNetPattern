@@ -10,6 +10,6 @@ namespace FormulaOne.Entities.Dtos.Requests
         public required string FirstName { get; set; }
         public required string LastName { get; set; } 
         public int DriverNumber { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public required DateTime DateOfBirth { get; set; }
     }
 }

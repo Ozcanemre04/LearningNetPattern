@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using AutoMapper;
+using FormulaOne.Api.commands.DriversCommands;
+using FormulaOne.Api.Queries.DriversQueries;
 using FormulaOne.DataService;
 using FormulaOne.DataService.Repository;
 using FormulaOne.DataService.Repository.Interface;
 using FormulaOne.Entities;
 using FormulaOne.Entities.Dtos.Requests;
 using FormulaOne.Entities.Dtos.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FormulaOne.Api.Controller
@@ -17,69 +17,56 @@ namespace FormulaOne.Api.Controller
     [Route("api/[controller]")]
     public class DriverController : BaseController
     {
-        public DriverController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public DriverController(IMediator mediator) : base(mediator)
         {
         }
-
 
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DriverResponse>>> GetAll()
         {
-            var drivers = await _unitOfWork.Drivers.GetAll();
-            var driversDto = drivers.Select(driver => _mapper.Map<DriverResponse>(driver));
+           var query = new GetAllDriversQuery();
+           var result = await _mediator.Send(query);
 
-            return Ok(driversDto);
+            return Ok(result);
         }
 
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult<DriverResponse>> GetOneById([FromRoute] Guid id)
         {
-            var driver = await _unitOfWork.Drivers.GetById(id);
-            if (driver == null)
-            {
-                return NotFound("driver not found");
-            }
-            var driverDto = _mapper.Map<DriverResponse>(driver);
-
-            return Ok(driverDto);
+            var query = new GetDriverQuery(id);
+            var result = await _mediator.Send(query);
+            return result == null? NotFound("Not found"): Ok(result);
         }
 
         [HttpDelete("{id:Guid}")]
         public async Task<IActionResult> DeleteOneDriver([FromRoute] Guid id)
         {
-            var driver = await _unitOfWork.Drivers.GetById(id);
-            if (driver == null)
-            {
-                return NotFound("driver not found");
-            }
-            await _unitOfWork.Drivers.Delete(driver);
-            await _unitOfWork.completeAsync();
-            return Ok(true);
+            var command  = new DeleteDriverRequest(id);
+            var result = await _mediator.Send(command);
+            return result == false? NotFound("Not found"): Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddDriver([FromBody] AddDriverRequest adddriver)
         {
-            var driver = _mapper.Map<Driver>(adddriver);
-            await _unitOfWork.Drivers.Add(driver);
-            await _unitOfWork.completeAsync();
-            return Ok(true);
+            if(!ModelState.IsValid)
+               return BadRequest();
+
+            var command = new CreateDriverRequest(adddriver);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<IActionResult> UpdateDriver([FromRoute] Guid id, [FromBody] UpdateDriverRequest updatedriver)
+        public async Task<IActionResult> UpdateDriver([FromRoute] Guid id, [FromBody] UpdateDriverInfoRequest updatedriver)
         {
-            var driver = await _unitOfWork.Drivers.GetById(id);
-            if (driver == null)
-            {
-                return NotFound("driver not found");
-            }
-            _mapper.Map(updatedriver, driver);
-            await _unitOfWork.Drivers.Update(driver);
-            await _unitOfWork.completeAsync();
+            if(!ModelState.IsValid)
+               return BadRequest();
 
-            return Ok(true);
+            var command  = new UpdateDriverRequest(id,updatedriver);
+            var result = await _mediator.Send(command);
+            return result == false? NotFound("Not found"): Ok(result);
         }
     }
 }

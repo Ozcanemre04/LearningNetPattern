@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using FormulaOne.DataService.Repository.Interface;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FormulaOne.Api.Controller
@@ -12,13 +13,10 @@ namespace FormulaOne.Api.Controller
     [Route("api/[controller]")]
     public class BaseController : ControllerBase
     {
-        protected readonly IUnitOfWork _unitOfWork;
-        protected readonly IMapper _mapper;
-
-        public BaseController(IUnitOfWork unitOfWork,IMapper mapper)
+        protected readonly IMediator _mediator;
+        public BaseController(IMediator mediator)
         {
-          _unitOfWork = unitOfWork;
-          _mapper = mapper;     
+          _mediator = mediator;
         }
     }
 }

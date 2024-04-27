@@ -20,10 +20,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     }
 
-    public GenericRepository(AppDbContext context)
-    {
-        this.context = context;
-    }
 
     public virtual async Task<bool> Add(T entity)
     {

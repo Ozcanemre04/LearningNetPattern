@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using AutoMapper;
 using FormulaOne.Entities;
 using FormulaOne.Entities.Dtos.Requests;
+
 
 namespace FormulaOne.Api.MappingProfiles
 {
@@ -32,7 +30,7 @@ namespace FormulaOne.Api.MappingProfiles
           .ForMember(dest => dest.UpdatedDate,opt => opt.MapFrom(src => DateTime.Now));
 
           //update driver map
-          CreateMap<UpdateDriverRequest,Driver>()
+          CreateMap<UpdateDriverInfoRequest,Driver>()
           .ForMember(dest => dest.UpdatedDate,opt => opt.MapFrom(src => DateTime.Now))
           .ForAllMembers(opts => opts.Condition((src,dest,srcMember)=> srcMember != null));
        }   

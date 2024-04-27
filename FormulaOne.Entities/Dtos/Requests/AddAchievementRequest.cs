@@ -11,7 +11,6 @@ namespace FormulaOne.Entities.Dtos.Requests
         public int PolePosition { get; set; }
         public int FastestLap { get; set; }
         public int WorldChampionship { get; set; }
-
-
+        public required Guid DriverId { get; set; }
     }
 }
